@@ -10,4 +10,4 @@ A F4SE(DLL) plugin which reenables some hard-coded features in survival mode of 
 * Restore vainlla compass settings,compass will show locations and enemies' red dot.  
 * Show auto save settings on system menu's survival difficulty page.
 * Enable auto save.  
-* Enable achievements when you install mods.
+* Enable achievements when you play mods.
