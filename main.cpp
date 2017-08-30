@@ -103,41 +103,44 @@ void InitHooks_1_10_20()
 
 	if (GetPrivateProfileInt(settingsSection, "iEnableFastTravel", 0, configFile))
 	{
-		//V1.10
-		UInt8 instructions[] = { 0xE9, 0xF2, 0x00, 0x00, 0x00, 0x90 };
-		SafeWriteBuf(RelocAddr<uintptr_t>(0xB94A8B).GetUIntPtr(), instructions, 6);
+		UInt8 codes[] = { 0xE9, 0xF2, 0x00, 0x00, 0x00, 0x90 };
+		SafeWriteBuf(RelocAddr<uintptr_t>(0xB94A8B).GetUIntPtr(), codes, sizeof(codes));
 	}
 
 	if (GetPrivateProfileInt(settingsSection, "iEnableConsole", 0, configFile))
 	{
-		//V1.10
 		//Enable console.
 		SafeWrite8(RelocAddr<uintptr_t>(0x12A9292).GetUIntPtr(), 0xEB);
 	}
-	//Restore TGM 
+
 	if (GetPrivateProfileInt(settingsSection, "iEnableGodMode", 0, configFile))
 	{
-		//V1.10
+		//TGM
 		SafeWrite8(RelocAddr<uintptr_t>(0x0EA1BFA).GetUIntPtr(), 0xEB);
 		SafeWrite8(RelocAddr<uintptr_t>(0x0EA1B41).GetUIntPtr(), 0xEB);
 		SafeWrite8(RelocAddr<uintptr_t>(0x0EB5D10).GetUIntPtr(), 0xEB);
+
+		//TIM
+		SafeWrite8(RelocAddr<uintptr_t>(0x0EA1BA1).GetUIntPtr(), 0xEB);
+		SafeWrite8(RelocAddr<uintptr_t>(0x0EB5CA1).GetUIntPtr(), 0xEB);
+		UInt8 codes[] = { 0xE9, 0xFD, 0x00, 0x00, 0x00, 0x90 };
+		SafeWriteBuf(RelocAddr<uintptr_t>(0xEB8EBE).GetUIntPtr(), codes, sizeof(codes));
 	}
-	//Enable quick save.
+
 	if (GetPrivateProfileInt(settingsSection, "iEnableQuickSave", 0, configFile))
 	{
-		//V1.10
+		//Enable quick save.
 		SafeWrite16(RelocAddr<uintptr_t>(0x12A96E4).GetUIntPtr(), 0x9090);//128DA84
 	}
-	//Save/Load button
+
 	if (GetPrivateProfileInt(settingsSection, "iEnableSaveLoadButton", 0, configFile))
 	{
-		//V1.10
+		//Save/Load button
 		SafeWrite16(RelocAddr<uintptr_t>(0x0B7DE0F).GetUIntPtr(), 0x9090);
 	}
 
 	if (GetPrivateProfileInt(settingsSection, "iCanReenableSurvivalMode", 0, configFile))
 	{
-		//V1.10
 		//Allow re-enable Survival
 		UInt8 nops[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
 		SafeWriteBuf(RelocAddr<uintptr_t>(0x0B7DF0D).GetUIntPtr(), nops, sizeof(nops));
@@ -145,8 +148,6 @@ void InitHooks_1_10_20()
 
 	if (GetPrivateProfileInt(settingsSection, "iShowEnemyRedDotOnCompass", 0, configFile))
 	{
-		//V1.10
-		//Restore vanilla compass settings.
 		//fSurvivalPerceptionCompassBase
 		//fSurvivalPerceptionCompassMult
 		SafeWrite8(RelocAddr<uintptr_t>(0x0A3BC26).GetUIntPtr(), 0xEB); //A3BC26
@@ -161,7 +162,6 @@ void InitHooks_1_10_20()
 
 	if (GetPrivateProfileInt(settingsSection, "iShowAutoSaveSettings", 0, configFile))
 	{
-		//V1.10
 		//enable pause menu's auto save settings.
 		UInt8 codes[] = { 0xB3, 0x01, 0x90 };
 		SafeWriteBuf(RelocAddr<uintptr_t>(0x0BBFA53).GetUIntPtr(), codes, sizeof(codes));
@@ -169,14 +169,12 @@ void InitHooks_1_10_20()
 
 	if (GetPrivateProfileInt(settingsSection, "iEnableAutoSave", 0, configFile))
 	{
-		//V1.10
 		//enable auto save system
 		SafeWrite16(RelocAddr<uintptr_t>(0x0E99270).GetUIntPtr(), 0x9090);
 	}
 
 	if (GetPrivateProfileInt(settingsSection, "iEnableAchievement", 0, configFile))
 	{
-		//V1.10
 		//enable achievement. 
 		UInt8 codes[] = { 0x48, 0x31, 0xC0, 0xC3 };
 		SafeWriteBuf(RelocAddr<uintptr_t>(0x117CF0).GetUIntPtr(), codes, sizeof(codes));
@@ -184,12 +182,11 @@ void InitHooks_1_10_20()
 
 	if (GetPrivateProfileInt(settingsSection, "iDisablesStimpakAmmoWeight", 0, configFile))
 	{
-		//V1.10
 		SafeWrite16(RelocAddr<uintptr_t>(0x16A33A).GetUIntPtr(), 0x9090);
 		SafeWrite8(RelocAddr<uintptr_t>(0x16A3C4).GetUIntPtr(), 0xEB);
 	}
 
-	//V1.10
+	//Runtime V1.10.20
 	//pPlayer_5AC26F8
 	//isInSurvivalMode EAE640 == 6
 }
@@ -266,7 +263,8 @@ RelocAddr <_GameDataReady_Original> GameDataReady_Original = 0x0082F8D0; //V1.10
 void GameDataReady_Hook(bool isReady)//E8 04 23 00 00 48 8B 5C 24 58 48 8B 6C 24 60 48 8B 74 24 68
 {
 	(*g_isGameDataReady) = isReady;
-	GetEventDispatcher<TESLoadGameEvent>()->AddEventSink(new TESLoadGameHandler());
+	static auto pLoadGameHandler = new TESLoadGameHandler();
+	GetEventDispatcher<TESLoadGameEvent>()->AddEventSink(pLoadGameHandler);
 }
 //BasicEventHandler@GameScript RegisterEvents 1455DB0  33 FF 48 8B D9 48 85 C9 74 06 48 83 C1 68 EB 03 48 8B CF
 #endif
