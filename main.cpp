@@ -171,6 +171,8 @@ void InitHooks_1_10_20()
 	{
 		//enable auto save system
 		SafeWrite16(RelocAddr<uintptr_t>(0x0E99270).GetUIntPtr(), 0x9090);
+		//enable auto save when teleport.
+		SafeWrite16(RelocAddr<uintptr_t>(0x0EAAEAE).GetUIntPtr(), 0x9090);
 	}
 
 	if (GetPrivateProfileInt(settingsSection, "iEnableAchievement", 0, configFile))
@@ -333,7 +335,7 @@ extern "C"
 		{
 			InitHooks_1_9_4();
 		}
-		else/* if (g_runtimeVersion == RUNTIME_VERSION_1_10_20)*/
+		else if (g_runtimeVersion == RUNTIME_VERSION_1_10_20)
 		{
 			InitHooks_1_10_20();
 		}
